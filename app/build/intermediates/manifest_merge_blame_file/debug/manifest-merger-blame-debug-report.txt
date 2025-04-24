@@ -1,0 +1,135 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.networkmonitor"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+8-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml
+9        android:targetSdkVersion="31" />
+9-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:6:5-67
+11-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:6:22-64
+12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+12-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:7:5-79
+12-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:7:22-76
+13    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+13-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:8:5-114
+13-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:8:22-75
+14    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+14-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:9:5-78
+14-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:9:22-75
+15    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+15-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:10:5-77
+15-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:10:22-74
+16    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+16-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:11:5-75
+16-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:11:22-72
+17    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+17-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:12:5-76
+17-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:12:22-73
+18    <uses-permission android:name="android.permission.READ_NETWORK_USAGE_HISTORY" />
+18-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:13:5-121
+18-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:13:22-82
+19    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+19-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:14:5-77
+19-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:14:22-74
+20    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+20-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:15:5-122
+20-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:15:22-83
+21    <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
+21-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:16:5-113
+21-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:16:22-74
+22    <uses-permission android:name="android.permission.UPDATE_APP_OPS_STATS" />
+22-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:17:5-115
+22-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:17:22-76
+23
+24    <queries>
+24-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:19:5-24:15
+25        <intent>
+25-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:20:9-22:18
+26            <action android:name="android.intent.action.MAIN" />
+26-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:21:13-65
+26-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:21:21-62
+27        </intent>
+28
+29        <package android:name="com.ss.android.ugc.aweme" />
+29-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:23:9-60
+29-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:23:18-57
+30    </queries>
+31
+32    <application
+32-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:26:5-48:19
+33        android:allowBackup="true"
+33-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:27:9-35
+34        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+34-->[androidx.core:core:1.7.0] /Users/walle/.gradle/caches/transforms-3/789b00551d9516de3ac7ae7101e94e21/transformed/core-1.7.0/AndroidManifest.xml:24:18-86
+35        android:debuggable="true"
+36        android:extractNativeLibs="false"
+37        android:icon="@mipmap/ic_launcher"
+37-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:28:9-43
+38        android:label="@string/app_name"
+38-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:29:9-41
+39        android:roundIcon="@mipmap/ic_launcher_round"
+39-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:30:9-54
+40        android:supportsRtl="true"
+40-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:31:9-35
+41        android:testOnly="true"
+42        android:theme="@style/Theme.NetworkMonitor" >
+42-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:32:9-52
+43        <activity
+43-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:34:9-41:20
+44            android:name="com.example.networkmonitor.MainActivity"
+44-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:35:13-41
+45            android:exported="true" >
+45-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:36:13-36
+46            <intent-filter>
+46-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:37:13-40:29
+47                <action android:name="android.intent.action.MAIN" />
+47-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:21:13-65
+47-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:21:21-62
+48
+49                <category android:name="android.intent.category.LAUNCHER" />
+49-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:39:17-77
+49-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:39:27-74
+50            </intent-filter>
+51        </activity>
+52
+53        <service
+53-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:43:9-47:56
+54            android:name="com.example.networkmonitor.FloatingWindowService"
+54-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:44:13-50
+55            android:enabled="true"
+55-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:45:13-35
+56            android:exported="false"
+56-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:46:13-37
+57            android:foregroundServiceType="dataSync" />
+57-->/Users/walle/Public/code/NetworkMonitor/app/src/main/AndroidManifest.xml:47:13-53
+58
+59        <provider
+59-->[androidx.emoji2:emoji2:1.0.0] /Users/walle/.gradle/caches/transforms-3/e0faff0e2a5604be5582246baf4ff6f3/transformed/emoji2-1.0.0/AndroidManifest.xml:26:9-34:20
+60            android:name="androidx.startup.InitializationProvider"
+60-->[androidx.emoji2:emoji2:1.0.0] /Users/walle/.gradle/caches/transforms-3/e0faff0e2a5604be5582246baf4ff6f3/transformed/emoji2-1.0.0/AndroidManifest.xml:27:13-67
+61            android:authorities="com.example.networkmonitor.androidx-startup"
+61-->[androidx.emoji2:emoji2:1.0.0] /Users/walle/.gradle/caches/transforms-3/e0faff0e2a5604be5582246baf4ff6f3/transformed/emoji2-1.0.0/AndroidManifest.xml:28:13-68
+62            android:exported="false" >
+62-->[androidx.emoji2:emoji2:1.0.0] /Users/walle/.gradle/caches/transforms-3/e0faff0e2a5604be5582246baf4ff6f3/transformed/emoji2-1.0.0/AndroidManifest.xml:29:13-37
+63            <meta-data
+63-->[androidx.emoji2:emoji2:1.0.0] /Users/walle/.gradle/caches/transforms-3/e0faff0e2a5604be5582246baf4ff6f3/transformed/emoji2-1.0.0/AndroidManifest.xml:31:13-33:52
+64                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+64-->[androidx.emoji2:emoji2:1.0.0] /Users/walle/.gradle/caches/transforms-3/e0faff0e2a5604be5582246baf4ff6f3/transformed/emoji2-1.0.0/AndroidManifest.xml:32:17-75
+65                android:value="androidx.startup" />
+65-->[androidx.emoji2:emoji2:1.0.0] /Users/walle/.gradle/caches/transforms-3/e0faff0e2a5604be5582246baf4ff6f3/transformed/emoji2-1.0.0/AndroidManifest.xml:33:17-49
+66            <meta-data
+66-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/walle/.gradle/caches/transforms-3/50c4e24e48083eb3369774b401b9867a/transformed/lifecycle-process-2.4.0/AndroidManifest.xml:31:13-33:52
+67                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+67-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/walle/.gradle/caches/transforms-3/50c4e24e48083eb3369774b401b9867a/transformed/lifecycle-process-2.4.0/AndroidManifest.xml:32:17-78
+68                android:value="androidx.startup" />
+68-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/walle/.gradle/caches/transforms-3/50c4e24e48083eb3369774b401b9867a/transformed/lifecycle-process-2.4.0/AndroidManifest.xml:33:17-49
+69        </provider>
+70    </application>
+71
+72</manifest>
