@@ -35,11 +35,26 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import android.net.TrafficStats;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
 
 public class FloatingWindowService extends Service {
     private static final int NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID = "NetworkMonitorChannel";
     private static final long UPDATE_INTERVAL = 1000; // 更新间隔为1秒
+    private static final double MOBILE_SPEED_THRESHOLD = 50.0; // 蜂窝流量阈值，单位KB/s
+    private static final String PING_HOST = "8.8.8.8"; // Google DNS服务器
+    private static final int PING_COUNT = 1; // 每次只ping一个包
+    private static final int PING_TIMEOUT = 1000; // ping超时时间（毫秒）
+    private static final int WINDOW_SIZE = 4; // 滑动窗口大小
+    
     private WindowManager windowManager;
     private View floatingView;
     private String packageName;
@@ -47,18 +62,28 @@ public class FloatingWindowService extends Service {
     private NetworkStatsManager networkStatsManager;
     private Timer timer;
     private Handler handler;
+    private ConnectivityManager connectivityManager;
+    private ExecutorService pingExecutor;
     
     private long lastWifiRx = 0;
     private long lastWifiTx = 0;
     private long lastMobileRx = 0;
     private long lastMobileTx = 0;
     private long lastUpdateTime = 0;
-    private long lastQueryTime = 0;  // 新增：上次查询时间
+    private long lastQueryTime = 0;
     private long accumulatedWifiRx = 0;
     private long accumulatedWifiTx = 0;
     private long accumulatedMobileRx = 0;
     private long accumulatedMobileTx = 0;
-    private long lastDisplayUpdateTime = 0;  // 新增：上次显示更新时间
+    private long lastDisplayUpdateTime = 0;
+    private int defaultBackgroundColor;
+    
+    // 网络质量指标
+    private final LinkedList<Double> rttWindow = new LinkedList<>();
+    private final LinkedList<Boolean> lossWindow = new LinkedList<>();
+    private double packetLossRate = 0.0;
+    private double averageRtt = 0.0;
+    private final Object networkQualityLock = new Object();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -70,6 +95,8 @@ public class FloatingWindowService extends Service {
         super.onCreate();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         handler = new Handler();
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        pingExecutor = Executors.newSingleThreadExecutor();
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
     }
@@ -131,6 +158,11 @@ public class FloatingWindowService extends Service {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         floatingView = inflater.inflate(R.layout.floating_window, null);
 
+        // 保存默认背景颜色
+        defaultBackgroundColor = floatingView.getBackground() != null ? 
+            ((ColorDrawable) floatingView.getBackground()).getColor() : 
+            Color.TRANSPARENT;
+
         // 添加拖动功能
         floatingView.setOnTouchListener(new View.OnTouchListener() {
             private int initialX;
@@ -182,7 +214,87 @@ public class FloatingWindowService extends Service {
             public void run() {
                 updateNetworkStats(false);
             }
-        }, UPDATE_INTERVAL, UPDATE_INTERVAL); // 每秒更新一次
+        }, UPDATE_INTERVAL, UPDATE_INTERVAL);
+
+        // 启动ping监控
+        startPingMonitoring();
+    }
+
+    private void startPingMonitoring() {
+        pingExecutor.execute(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    long startTime = System.currentTimeMillis();
+                    
+                    Process process = Runtime.getRuntime().exec("ping -c " + PING_COUNT + " -W " + (PING_TIMEOUT / 1000) + " " + PING_HOST);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                    String line;
+                    boolean packetLost = true;
+                    double rtt = 0.0;
+
+                    while ((line = reader.readLine()) != null) {
+                        if (line.contains("time=")) {
+                            // 解析RTT
+                            String timeStr = line.substring(line.indexOf("time=") + 5);
+                            timeStr = timeStr.substring(0, timeStr.indexOf(" ms"));
+                            rtt = Double.parseDouble(timeStr);
+                            packetLost = false;
+                            break;
+                        }
+                    }
+
+                    process.waitFor();
+
+                    // 更新滑动窗口
+                    synchronized (networkQualityLock) {
+                        // 更新RTT窗口
+                        rttWindow.addLast(rtt);
+                        if (rttWindow.size() > WINDOW_SIZE) {
+                            rttWindow.removeFirst();
+                        }
+
+                        // 更新丢包窗口
+                        lossWindow.addLast(packetLost);
+                        if (lossWindow.size() > WINDOW_SIZE) {
+                            lossWindow.removeFirst();
+                        }
+
+                        // 计算平均RTT
+                        double totalRtt = 0.0;
+                        int validRttCount = 0;
+                        for (Double r : rttWindow) {
+                            if (r > 0) {
+                                totalRtt += r;
+                                validRttCount++;
+                            }
+                        }
+                        averageRtt = validRttCount > 0 ? totalRtt / validRttCount : 0.0;
+
+                        // 计算丢包率
+                        int lostCount = 0;
+                        for (Boolean lost : lossWindow) {
+                            if (lost) {
+                                lostCount++;
+                            }
+                        }
+                        packetLossRate = (lossWindow.size() > 0) ? (lostCount * 100.0) / lossWindow.size() : 0.0;
+                    }
+
+                    // 计算剩余等待时间
+                    long elapsedTime = System.currentTimeMillis() - startTime;
+                    long sleepTime = Math.max(0, UPDATE_INTERVAL - elapsedTime);
+                    Thread.sleep(sleepTime);
+                } catch (Exception e) {
+                    System.out.println("ERROR: Ping监控失败 - " + e.getMessage());
+                    e.printStackTrace();
+                    try {
+                        Thread.sleep(UPDATE_INTERVAL);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+        });
     }
 
     private void updateNetworkStats(boolean isInitial) {
@@ -190,8 +302,7 @@ public class FloatingWindowService extends Service {
             long now = System.currentTimeMillis();
             
             // 获取当前网络类型
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
             boolean isWifi = activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
             boolean isMobile = activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE;
 
@@ -217,18 +328,40 @@ public class FloatingWindowService extends Service {
                     double mobileRxSpeed = ((mobileRxBytes - lastMobileRx) * 1000.0) / timeDiff;
                     double mobileTxSpeed = ((mobileTxBytes - lastMobileTx) * 1000.0) / timeDiff;
 
+                    // 计算总带宽（上下行之和）
+                    double totalMobileSpeed = (mobileRxSpeed + mobileTxSpeed) / 1024.0; // 转换为KB/s
+
+                    // 获取网络质量指标
+                    double currentPacketLossRate;
+                    double currentAverageRtt;
+                    synchronized (networkQualityLock) {
+                        currentPacketLossRate = packetLossRate;
+                        currentAverageRtt = averageRtt;
+                    }
+
                     // 更新UI显示
                     final String wifiSpeedText = String.format("WiFi ↓%.1fKB/s ↑%.1fKB/s",
                             wifiRxSpeed / 1024, wifiTxSpeed / 1024);
                     final String mobileSpeedText = String.format("流量 ↓%.1fKB/s ↑%.1fKB/s",
                             mobileRxSpeed / 1024, mobileTxSpeed / 1024);
+                    final String networkQualityText = String.format("丢包率: %.1f%% RTT: %.1fms",
+                            currentPacketLossRate, currentAverageRtt);
 
                     handler.post(() -> {
                         TextView statView = floatingView.findViewById(R.id.stats_text);
-                        statView.setText(wifiSpeedText + "\n" + mobileSpeedText);
+                        statView.setText(wifiSpeedText + "\n" + mobileSpeedText + "\n" + networkQualityText);
+
+                        // 根据蜂窝流量带宽更新背景颜色
+                        if (totalMobileSpeed > MOBILE_SPEED_THRESHOLD) {
+                            // 使用淡红色背景
+                            floatingView.setBackgroundColor(Color.argb(50, 255, 0, 0));
+                        } else {
+                            // 恢复默认背景颜色
+                            floatingView.setBackgroundColor(defaultBackgroundColor);
+                        }
                     });
 
-                    System.out.println("DEBUG: 速率更新 - " + wifiSpeedText + " | " + mobileSpeedText);
+                    System.out.println("DEBUG: 速率更新 - " + wifiSpeedText + " | " + mobileSpeedText + " | " + networkQualityText);
                 }
             }
 
@@ -250,6 +383,9 @@ public class FloatingWindowService extends Service {
         super.onDestroy();
         if (timer != null) {
             timer.cancel();
+        }
+        if (pingExecutor != null) {
+            pingExecutor.shutdownNow();
         }
         if (floatingView != null && windowManager != null) {
             windowManager.removeView(floatingView);
